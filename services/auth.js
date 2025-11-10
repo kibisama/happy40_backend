@@ -2,7 +2,7 @@ const User = require("../models/user");
 
 /**
  * @param {string} email
- * @returns {Proimse<Boolean|undefined>}
+ * @returns {Proimse<boolean>}
  */
 exports.email_validity_checks = async (email) => {
   try {
