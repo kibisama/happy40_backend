@@ -4,26 +4,27 @@ const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const session = require("express-session");
 const dotenv = require("dotenv");
-
 dotenv.config();
 
 const app = express();
 app.set("port", process.env.PORT || 8001);
+
 app.use(morgan("combined"));
 
-const helmet = require("helmet");
-const hpp = require("hpp");
-app.use(
-  helmet({
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: false,
-  })
-);
-app.use(hpp());
+const logger = require("./logger");
+
 if (process.env.NODE_ENV === "production") {
-} else {
-  app.use(morgan("dev"));
+  const helmet = require("helmet");
+  const hpp = require("hpp");
+
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: false,
+    })
+  );
+  app.use(hpp());
 }
 
 const { sequelize } = require("./models");
@@ -41,6 +42,12 @@ app.use("/", router);
 
 app.use((err, req, res, next) => {
   console.error(err);
+  logger.log({
+    level: "error",
+    message: err.message,
+    stack: err.stack,
+    timestamp: new Date().toString(),
+  });
   res.sendStatus(err.status || 500);
 });
 
