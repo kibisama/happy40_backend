@@ -47,6 +47,7 @@ app.use((err, req, res, next) => {
     message: err.message,
     stack: err.stack,
     timestamp: new Date().toString(),
+    req_ip: req.ip,
   });
   res.sendStatus(err.status || 500);
 });

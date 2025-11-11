@@ -3,9 +3,9 @@ const { createLogger, format, transports } = require("winston");
 module.exports = createLogger({
   level: "error",
   format: format.printf(
-    ({ message, timestamp, stack }) =>
+    ({ timestamp, req_ip, message, stack }) =>
       `{
-  timestamp: ${timestamp},
+  timestamp: ${timestamp},${req_ip && `\n  req_ip: ${req_ip},`}
   message: ${stack || message}
 }`
   ),
