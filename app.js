@@ -11,8 +11,6 @@ app.set("port", process.env.PORT || 8001);
 
 app.use(morgan("combined"));
 
-const logger = require("./logger");
-
 if (process.env.NODE_ENV === "production") {
   const helmet = require("helmet");
   const hpp = require("hpp");
@@ -31,25 +29,30 @@ const { sequelize } = require("./models");
 sequelize
   .sync()
   .then(() => console.log("DB 연결 성공"))
-  .catch((err) => console.error(err));
+  .catch((e) => console.error(e));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
+const passport = require("passport");
+require("./passport")();
+app.use(passport.initialize());
+
 const router = require("./routes");
 app.use("/", router);
 
-app.use((err, req, res, next) => {
-  console.error(err);
+const logger = require("./logger");
+app.use((e, req, res, next) => {
+  console.error(e);
   logger.log({
     level: "error",
-    message: err.message,
-    stack: err.stack,
+    message: e.message,
+    stack: e.stack,
     timestamp: new Date().toString(),
     req_ip: req.ip,
   });
-  res.sendStatus(err.status || 500);
+  res.sendStatus(e.status || 500);
 });
 
 app.listen(app.get("port"), () =>
